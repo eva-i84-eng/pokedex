@@ -20,6 +20,9 @@ type Pokemon struct {
 	ID    int    `json:"id"`
 	Name  string `json:"name"`
 	Types []Type `json:"types"`
+	Height  int    `json:"height"`
+	Weight  int    `json:"weight"`
+	Stats   []Stat `json:"stats"`
 }
 
 type ListePokemon struct {
@@ -44,7 +47,7 @@ type StatDetail struct {
 }
 
 type Stat struct {
-	BaseStat int        `json:"BaseStat"` // Attention aux majuscules dans le JSON (base_stat)
+	BaseStat int        `json:"base_stat"`
 	Stat     StatDetail `json:"stat"`
 }
 
@@ -123,9 +126,15 @@ func fiche(w http.ResponseWriter, r *http.Request) {
 	}
 	page := PagePokemon{
 		Pokemon: pokemon,
-		NomFr: nomFrancais(getEspece(id)),
+		NomFr:   nomFrancais(getEspece(id)),
 	}
-	tmpl := template.Must(template.ParseFiles("templates/fiche.html"))
+	// Définition de la FuncMap pour autoriser la division dans le template HTML
+	funcMap := template.FuncMap{
+		"div": func(a, b int) float64 {
+			return float64(a) / float64(b)
+		},
+	}
+	tmpl := template.Must(template.New("fiche.html").Funcs(funcMap).ParseFiles("templates/fiche.html"))
 	tmpl.Execute(w, page)
 }
 
