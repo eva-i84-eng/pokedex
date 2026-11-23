@@ -51,6 +51,15 @@ type Stat struct {
 	Stat     StatDetail `json:"stat"`
 }
 
+type AbilityDetail struct {
+	Name string `json:"name"`
+}
+
+type Ability struct {
+	Ability  AbilityDetail `json:"ability"`
+	IsHidden bool          `json:"is_hidden"`
+}
+
 func getPokemons() []Pokemon {
 	resp, err := http.Get("https://pokeapi.co/api/v2/pokemon?limit=151")
 	if err != nil {
