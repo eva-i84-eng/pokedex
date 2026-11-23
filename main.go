@@ -17,12 +17,13 @@ type Type struct {
 }
 
 type Pokemon struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Types []Type `json:"types"`
-	Height  int    `json:"height"`
-	Weight  int    `json:"weight"`
-	Stats   []Stat `json:"stats"`
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Types     []Type    `json:"types"`
+	Height    int       `json:"height"`
+	Weight    int       `json:"weight"`
+	Stats     []Stat    `json:"stats"`
+	Abilities []Ability `json:"abilities"`
 }
 
 type ListePokemon struct {

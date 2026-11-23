@@ -26,6 +26,16 @@
             <p>Taille : {{printf "%.1f" (div .Pokemon.Height 10)}} m</p>
             <p>Poids : {{printf "%.1f" (div .Pokemon.Weight 10)}} kg</p>
 
+            <h2>Talents</h2>
+            <ul class="talents">
+                {{range .Pokemon.Abilities}}
+                    <li>
+                        {{.Ability.Name}}
+                        {{if .IsHidden}} (caché){{end}}
+                    </li>
+                {{end}}
+            </ul>
+
             <!-- Statistiques -->
             <h2>Statistiques</h2>
             <ul>
