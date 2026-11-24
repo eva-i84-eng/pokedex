@@ -36,11 +36,17 @@ type Traduction struct {
 }
 type Espece struct {
 	Names []Traduction `json:"names"`
+	Genera            []Genere      `json:"genera"`
+	FlavorTextEntries []Description `json:"flavor_text_entries"`
+	IsLegendary       bool          `json:"is_legendary"`
+	IsMythical        bool          `json:"is_mythical"`
 }
 
 type PagePokemon struct {
 	Pokemon Pokemon
 	NomFr   string
+	CategorieFr string
+	DescriptionFr string
 }
 
 type StatDetail struct {
@@ -59,6 +65,16 @@ type AbilityDetail struct {
 type Ability struct {
 	Ability  AbilityDetail `json:"ability"`
 	IsHidden bool          `json:"is_hidden"`
+}
+
+type Genere struct {
+	Genus    string `json:"genus"`
+	Language Name   `json:"language"`
+}
+
+type Description struct {
+	FlavorText string `json:"flavor_text"`
+	Language   Name   `json:"language"`
 }
 
 func getPokemons() []Pokemon {
@@ -114,6 +130,24 @@ func nomFrancais(espece Espece) string {
 	return ""
 }
 
+func categorieFr(espece Espece) string {
+	for _, g := range espece.Genera {
+		if g.Language.Name == "fr" {
+			return g.Genus
+		}
+	}
+	return ""
+}
+
+func descriptionFr(espece Espece) string {
+	for _, d := range espece.FlavorTextEntries {
+		if d.Language.Name == "fr" {
+			return d.FlavorText
+		}
+	}
+	return ""
+}
+
 func erreur(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
 	tmpl := template.Must(template.ParseFiles("templates/erreur.html"))
@@ -134,16 +168,22 @@ func fiche(w http.ResponseWriter, r *http.Request) {
 		erreur(w, 404, "Ce Pokémon n'existe pas.")
 		return
 	}
+
+	espece := getEspece(id) // On récupère l'espèce une seule fois
+
 	page := PagePokemon{
-		Pokemon: pokemon,
-		NomFr:   nomFrancais(getEspece(id)),
+		Pokemon:       pokemon,
+		NomFr:         nomFrancais(espece),
+		CategorieFr:   categorieFr(espece),
+		DescriptionFr: descriptionFr(espece),
 	}
-	// Définition de la FuncMap pour autoriser la division dans le template HTML
+
 	funcMap := template.FuncMap{
 		"div": func(a, b int) float64 {
 			return float64(a) / float64(b)
 		},
 	}
+
 	tmpl := template.Must(template.New("fiche.html").Funcs(funcMap).ParseFiles("templates/fiche.html"))
 	tmpl.Execute(w, page)
 }
