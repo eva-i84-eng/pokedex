@@ -35,7 +35,7 @@ type Traduction struct {
 	Language Name   `json:"language"`
 }
 type Espece struct {
-	Names []Traduction `json:"names"`
+	Names             []Traduction  `json:"names"`
 	Genera            []Genere      `json:"genera"`
 	FlavorTextEntries []Description `json:"flavor_text_entries"`
 	IsLegendary       bool          `json:"is_legendary"`
@@ -43,10 +43,12 @@ type Espece struct {
 }
 
 type PagePokemon struct {
-	Pokemon Pokemon
-	NomFr   string
-	CategorieFr string
+	Pokemon       Pokemon
+	NomFr         string
+	CategorieFr   string
 	DescriptionFr string
+	IsLegendary   bool
+	IsMythical    bool
 }
 
 type StatDetail struct {
@@ -176,6 +178,8 @@ func fiche(w http.ResponseWriter, r *http.Request) {
 		NomFr:         nomFrancais(espece),
 		CategorieFr:   categorieFr(espece),
 		DescriptionFr: descriptionFr(espece),
+		IsLegendary:   espece.IsLegendary,
+		IsMythical:    espece.IsMythical,
 	}
 
 	funcMap := template.FuncMap{

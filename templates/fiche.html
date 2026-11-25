@@ -13,6 +13,15 @@
             <p>n° {{.Pokemon.ID}}</p>
             <h1>{{.NomFr}}</h1>
             <p>En anglais : {{.Pokemon.Name}}</p>
+            <!-- Badges Légendaire / Fabuleux -->
+            {{if .IsLegendary}}
+                <span class="badge legendaire">Légendaire</span>
+            {{end}}
+
+            {{if .IsMythical}}
+                <span class="badge fabuleux">Fabuleux</span>
+            {{end}}
+
             <p><strong>Catégorie :</strong> {{.CategorieFr}}</p>
             <p><strong>Description :</strong> {{.DescriptionFr}}</p>
 
