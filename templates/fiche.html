@@ -13,17 +13,14 @@
             <p>n° {{.Pokemon.ID}}</p>
             <h1>{{.NomFr}}</h1>
             <p>En anglais : {{.Pokemon.Name}}</p>
+
             <!-- Badges Légendaire / Fabuleux -->
             {{if .IsLegendary}}
                 <span class="badge legendaire">Légendaire</span>
             {{end}}
-
             {{if .IsMythical}}
                 <span class="badge fabuleux">Fabuleux</span>
             {{end}}
-
-            <p><strong>Catégorie :</strong> {{.CategorieFr}}</p>
-            <p><strong>Description :</strong> {{.DescriptionFr}}</p>
 
             <h2>Types</h2>
             <ul class="types">
@@ -32,11 +29,21 @@
                 {{end}}
             </ul>
 
-            <!-- Taille et Poids -->
+            <!-- Informations (Taille, Poids, Catégorie) -->
             <h2>Informations</h2>
             <p>Taille : {{printf "%.1f" (div .Pokemon.Height 10)}} m</p>
             <p>Poids : {{printf "%.1f" (div .Pokemon.Weight 10)}} kg</p>
+            {{if .CategorieFr}}
+                <p>Catégorie : {{.CategorieFr}}</p>
+            {{end}}
 
+            <!-- Description -->
+            {{if .DescriptionFr}}
+                <h2>Description</h2>
+                <p>{{.DescriptionFr}}</p>
+            {{end}}
+
+            <!-- Talents -->
             <h2>Talents</h2>
             <ul class="talents">
                 {{range .Pokemon.Abilities}}
@@ -54,7 +61,29 @@
                 <li>{{.Stat.Name}} : {{.BaseStat}}</li>
                 {{end}}
             </ul>
+
+            <!-- Évolutions -->
+            <h2>Évolutions</h2>
+            <ul class="evolutions">
+                {{template "evo-list" .EvolutionChain}}
+            </ul>
         </div>
     </div>
 </body>
 </html>
+
+<!-- Template récursif pour parcourir les évolutions -->
+{{define "evo-list"}}
+    {{if .Species.Name}}
+        <li>
+            <a href="/pokemon/{{.Species.Name}}">{{.Species.Name}}</a>
+            {{if .EvolvesTo}}
+                <ul>
+                    {{range .EvolvesTo}}
+                        {{template "evo-list" .}}
+                    {{end}}
+                </ul>
+            {{end}}
+        </li>
+    {{end}}
+{{end}}

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Name struct {
@@ -40,15 +41,17 @@ type Espece struct {
 	FlavorTextEntries []Description `json:"flavor_text_entries"`
 	IsLegendary       bool          `json:"is_legendary"`
 	IsMythical        bool          `json:"is_mythical"`
+	EvolutionChain    EvolutionRef  `json:"evolution_chain"`
 }
 
 type PagePokemon struct {
-	Pokemon       Pokemon
-	NomFr         string
-	CategorieFr   string
-	DescriptionFr string
-	IsLegendary   bool
-	IsMythical    bool
+	Pokemon        Pokemon
+	NomFr          string
+	CategorieFr    string
+	DescriptionFr  string
+	IsLegendary    bool
+	IsMythical     bool
+	EvolutionChain ChainLink
 }
 
 type StatDetail struct {
@@ -77,6 +80,19 @@ type Genere struct {
 type Description struct {
 	FlavorText string `json:"flavor_text"`
 	Language   Name   `json:"language"`
+}
+
+type ChainLink struct {
+	Species   Name        `json:"species"`
+	EvolvesTo []ChainLink `json:"evolves_to"`
+}
+
+type EvolutionChain struct {
+	Chain ChainLink `json:"chain"`
+}
+
+type EvolutionRef struct {
+	URL string `json:"url"`
 }
 
 func getPokemons() []Pokemon {
@@ -121,6 +137,20 @@ func getEspece(id string) Espece {
 	var espece Espece
 	json.NewDecoder(resp.Body).Decode(&espece)
 	return espece
+}
+
+func getEvolutionChain(url string) EvolutionChain {
+	trimmedURL := strings.TrimPrefix(url, "https://pokeapi.co/api/v2/")
+	resp, err := http.Get("https://pokeapi.co/api/v2/" + trimmedURL)
+	if err != nil {
+		fmt.Println("Erreur :", err)
+		return EvolutionChain{}
+	}
+	defer resp.Body.Close()
+
+	var chain EvolutionChain
+	json.NewDecoder(resp.Body).Decode(&chain)
+	return chain
 }
 
 func nomFrancais(espece Espece) string {
@@ -171,15 +201,17 @@ func fiche(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	espece := getEspece(id) // On récupère l'espèce une seule fois
+	espece := getEspece(id)
+	evolutionChain := getEvolutionChain(espece.EvolutionChain.URL)
 
 	page := PagePokemon{
-		Pokemon:       pokemon,
-		NomFr:         nomFrancais(espece),
-		CategorieFr:   categorieFr(espece),
-		DescriptionFr: descriptionFr(espece),
-		IsLegendary:   espece.IsLegendary,
-		IsMythical:    espece.IsMythical,
+		Pokemon:        pokemon,
+		NomFr:          nomFrancais(espece),
+		CategorieFr:    categorieFr(espece),
+		DescriptionFr:  descriptionFr(espece),
+		IsLegendary:    espece.IsLegendary,
+		IsMythical:     espece.IsMythical,
+		EvolutionChain: evolutionChain.Chain,
 	}
 
 	funcMap := template.FuncMap{
